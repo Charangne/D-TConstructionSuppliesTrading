@@ -1,0 +1,2503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#FFFFFF" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="MatPrice" />
+  <meta name="application-name" content="MatPrice" />
+  <link id="pwaManifestLink" rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22MatPrice%20Hardware%20Estimator%22%2C%22short_name%22%3A%22MatPrice%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FFFFFF%22%2C%22theme_color%22%3A%22%23FFFFFF%22%7D" />
+  <link id="pwaFaviconLink" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='44' fill='%23111827'/%3E%3Cpath d='M96 36c4 36 36 68 72 72-36 4-68 36-72 72-4-36-36-68-72-72 36-4 68-36 72-72z' fill='none' stroke='%23FFFFFF' stroke-width='12' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link id="pwaAppleIconLink" rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='44' fill='%23111827'/%3E%3Cpath d='M96 36c4 36 36 68 72 72-36 4-68 36-72 72-4-36-36-68-72-72 36-4 68-36 72-72z' fill='none' stroke='%23FFFFFF' stroke-width='12' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <title>MatPrice — Hardware Price Checker &amp; Cost Estimator</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-pure: #FFFFFF;
+      --bg-bubble: #F3F4F6;
+      --bg-bubble-hover: #E5E7EB;
+      --bg-bubble-soft: #F8FAFC;
+      --text-primary: #111827;
+      --text-secondary: #4B5563;
+      --text-muted: #6B7280;
+      --border-soft: #E5E7EB;
+      --accent-black: #111827;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #FFFFFF;
+      color: var(--text-primary);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    @media (min-width: 640px) {
+      body {
+        background-color: #F3F4F6;
+      }
+    }
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D1D5DB;
+      border-radius: 9999px;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .gemini-bubble {
+      background-color: #F4F5F7;
+      border-radius: 24px;
+      transition: all 0.18s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .gemini-bubble-card {
+      background-color: #F8F9FA;
+      border: 1px solid #EAECEF;
+      border-radius: 26px;
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .gemini-bubble-card:hover {
+      border-color: #D1D5DB;
+      background-color: #F3F4F6;
+    }
+    .gemini-pill {
+      border-radius: 9999px;
+      transition: all 0.16s ease;
+    }
+    .app-shell-mobile {
+      max-width: 460px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #FFFFFF;
+    }
+    @media (min-width: 640px) {
+      .app-shell-mobile {
+        margin: 16px auto;
+        min-height: calc(100vh - 32px);
+        border-radius: 40px;
+        border: 6px solid #111827;
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+      }
+    }
+    .app-shell-full {
+      max-width: 1120px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #FFFFFF;
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-bubble {
+      animation: fadeSlideUp 0.2s ease-out forwards;
+    }
+    /* When launched from Android Home Screen (PWA standalone) or on mobile screens */
+    @media all and (display-mode: standalone), (max-width: 639px) {
+      #protoEnvBar, #androidStatusBar {
+        display: none !important;
+      }
+      .app-shell-mobile {
+        max-width: 100% !important;
+        margin: 0 !important;
+        min-height: 100vh !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="text-neutral-900 antialiased selection:bg-neutral-900 selection:text-white">
+
+  <!-- Top Prototype Environment Bar (Hidden automatically on Android mobile / installed PWA) -->
+  <div id="protoEnvBar" class="bg-white border-b border-neutral-200 px-3 py-2 flex items-center justify-between text-xs text-neutral-600">
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-neutral-900 text-white font-semibold text-[10px]">M</span>
+      <span class="font-medium text-neutral-900">MatPrice PWA</span>
+      <span class="hidden sm:inline text-neutral-400">•</span>
+      <span class="hidden sm:inline text-neutral-500">Installable Android Home Screen App</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <button id="btnOpenPwaModalTop" type="button" class="px-2.5 py-1 rounded-full bg-neutral-900 hover:bg-neutral-800 text-white font-semibold flex items-center gap-1 transition">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+          <line x1="12" y1="18" x2="12.01" y2="18" />
+        </svg>
+        <span>Install on Android</span>
+      </button>
+      <button id="btnToggleViewport" type="button" class="px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-medium flex items-center gap-1.5 transition">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="6" y="2" width="12" height="20" rx="2" />
+          <line x1="12" y1="18" x2="12.01" y2="18" />
+        </svg>
+        <span id="viewportLabel">Phone Frame</span>
+      </button>
+      <button id="btnResetDemoData" type="button" class="px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 font-medium transition" title="Restore sample hardware data">
+        Reset Sample Data
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Android App Container -->
+  <div id="appShell" class="app-shell-mobile flex flex-col justify-between relative bg-white">
+
+    <!-- Simulated Android Status Bar on Desktop Preview -->
+    <div id="androidStatusBar" class="px-6 pt-3 pb-1 flex items-center justify-between text-[11px] font-medium text-neutral-500 select-none bg-white sticky top-0 z-20">
+      <span id="statusBarTime">12:15</span>
+      <div class="flex items-center gap-2">
+        <span id="offlineBadge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-700 text-[10px] font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-neutral-900"></span>
+          <span id="syncStatusMini">Offline-Ready • Synced</span>
+        </span>
+        <svg class="w-3.5 h-3.5 text-neutral-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+          <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+          <line x1="12" y1="20" x2="12.01" y2="20" />
+        </svg>
+        <svg class="w-4 h-3.5 text-neutral-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="16" height="10" rx="2" ry="2" />
+          <line x1="22" y1="11" x2="22" y2="13" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- App Header (Gemini Style Minimalist Header) -->
+    <header class="px-4 pt-3 pb-3 bg-white sticky top-0 z-20 border-b border-neutral-100">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-full bg-neutral-900 text-white flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 3c.5 4.5 4.5 8.5 9 9-4.5.5-8.5 4.5-9 9-.5-4.5-4.5-8.5-9-9 4.5-.5 8.5-4.5 9-9z" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-base font-semibold tracking-tight text-neutral-900 leading-tight">Hardware Price Bubble</h1>
+            <p class="text-[11px] text-neutral-500 leading-tight">Lowest-Supplier Auto Price &amp; Cost Estimator</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <button id="btnOpenSyncModal" type="button" aria-label="Cloud Sync" class="w-9 h-9 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-800 flex items-center justify-center transition" title="Cloud Sync &amp; Offline Storage">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+              <path d="m9 15 3-3 3 3" />
+              <path d="M12 12v6" />
+            </svg>
+          </button>
+          <button id="btnOpenCsvModal" type="button" aria-label="CSV / Excel Import &amp; Export" class="px-3 h-9 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs font-medium flex items-center gap-1.5 transition" title="Import or Export CSV / Excel">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="12" y1="18" x2="12" y2="12" />
+              <polyline points="9 15 12 12 15 15" />
+            </svg>
+            <span>CSV / Excel</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Add Action Bubbles Row -->
+      <div class="mt-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
+        <button id="btnQuickAddMaterial" type="button" class="px-3.5 py-2 rounded-full bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-medium flex items-center gap-1.5 shrink-0 transition shadow-sm">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          <span>Add Material</span>
+        </button>
+
+        <button id="btnQuickAddSupplier" type="button" class="px-3.5 py-2 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs font-medium flex items-center gap-1.5 shrink-0 transition border border-neutral-200">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          <span>+ New Supplier (Auto-Copy Materials)</span>
+        </button>
+
+        <button id="btnOpenPwaModal" type="button" class="px-3.5 py-2 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs font-medium flex items-center gap-1.5 shrink-0 transition border border-neutral-200">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3v12" />
+            <polyline points="8 11 12 15 16 11" />
+            <rect x="4" y="17" width="16" height="4" rx="1" />
+          </svg>
+          <span>Add to Home Screen</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Scrollable Viewport -->
+    <main class="flex-1 px-4 pt-3 pb-36 overflow-y-auto">
+
+      <!-- ==================== TAB 1: MATERIALS & PRICE CHECKER ==================== -->
+      <section id="viewMaterials" class="space-y-3">
+
+        <!-- Gemini Bubble Search Bar -->
+        <div class="gemini-bubble px-4 py-2.5 flex items-center gap-2.5 border border-transparent focus-within:border-neutral-300 focus-within:bg-white">
+          <svg class="w-4 h-4 text-neutral-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="Find material, brand, size, or supplier..."
+            class="w-full bg-transparent text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none"
+          />
+          <button id="btnClearSearch" type="button" class="hidden w-6 h-6 rounded-full bg-neutral-200 hover:bg-neutral-300 text-neutral-700 items-center justify-center text-xs" aria-label="Clear search">
+            ✕
+          </button>
+        </div>
+
+        <!-- Category / Kind Filter Bubbles -->
+        <div class="flex items-center justify-between gap-2">
+          <div id="categoryFilterRow" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5"></div>
+        </div>
+
+        <!-- Secondary Spec Filter Bubbles -->
+        <div class="flex items-center justify-between gap-2 pt-0.5 text-xs text-neutral-500">
+          <span id="materialsCountLabel">Showing 0 materials</span>
+          <div class="flex items-center gap-1.5">
+            <label for="filterBrandSelect" class="sr-only">Filter by Brand</label>
+            <select id="filterBrandSelect" class="px-2.5 py-1 rounded-full bg-neutral-100 border border-neutral-200 text-neutral-800 text-xs font-medium focus:outline-none">
+              <option value="ALL">All Brands</option>
+            </select>
+            <label for="sortBySelect" class="sr-only">Sort Materials</label>
+            <select id="sortBySelect" class="px-2.5 py-1 rounded-full bg-neutral-100 border border-neutral-200 text-neutral-800 text-xs font-medium focus:outline-none">
+              <option value="name">Sort: A–Z</option>
+              <option value="price-asc">Lowest Price</option>
+              <option value="price-desc">Highest Price</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Helper Banner -->
+        <div class="px-3.5 py-2.5 rounded-2xl bg-neutral-50 border border-neutral-200/80 flex items-start gap-2.5 text-xs text-neutral-600">
+          <svg class="w-4 h-4 text-neutral-900 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4" />
+            <path d="M12 8h.01" />
+          </svg>
+          <div class="leading-relaxed">
+            Default view shows the <span class="font-semibold text-neutral-900">lowest-priced supplier</span>. Use the <span class="font-semibold text-neutral-900">supplier dropdown on the right</span> of any item to check or select another supplier's price.
+          </div>
+        </div>
+
+        <!-- Materials Bubble List -->
+        <div id="materialsListContainer" class="space-y-2.5 pt-1"></div>
+
+      </section>
+
+      <!-- ==================== TAB 2: COST ESTIMATE CALCULATOR ==================== -->
+      <section id="viewEstimate" class="hidden space-y-3">
+        <div class="gemini-bubble p-4 border border-neutral-200/80">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-[11px] uppercase tracking-wider font-semibold text-neutral-500">Live Cost Estimate</span>
+              <h2 id="estimateGrandTotal" class="text-2xl font-bold text-neutral-900 mt-0.5">₱0.00</h2>
+              <p id="estimateMetaSummary" class="text-xs text-neutral-500 mt-0.5">0 materials selected • Price checking only</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button id="btnCopyEstimate" type="button" class="px-3 py-2 rounded-full bg-white border border-neutral-200 hover:bg-neutral-100 text-neutral-800 text-xs font-medium flex items-center gap-1.5 transition shadow-sm">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                <span>Copy</span>
+              </button>
+              <button id="btnClearEstimate" type="button" class="px-3 py-2 rounded-full bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-medium flex items-center gap-1.5 transition">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+                <span>Clear</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between px-1">
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-neutral-500">Selected Items &amp; Supplier Breakdown</h3>
+          <button id="btnBrowseToAddEstimate" type="button" class="text-xs font-medium text-neutral-900 underline hover:text-neutral-600">
+            + Select More Materials
+          </button>
+        </div>
+
+        <div id="estimateItemsContainer" class="space-y-2.5"></div>
+      </section>
+
+      <!-- ==================== TAB 3: SUPPLIERS & BATCH PRICE EDITOR ==================== -->
+      <section id="viewSuppliers" class="hidden space-y-3">
+        <div class="gemini-bubble p-4 border border-neutral-200/80 flex items-center justify-between gap-3">
+          <div>
+            <h2 class="text-sm font-semibold text-neutral-900">Supplier Price Lists</h2>
+            <p class="text-xs text-neutral-500 mt-0.5">
+              Adding a new supplier automatically copies the recent materials from your first supplier so you only need to edit the prices.
+            </p>
+          </div>
+          <button id="btnAddSupplierFromTab" type="button" class="px-3.5 py-2 rounded-full bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-medium shrink-0 flex items-center gap-1.5 transition">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            <span>Add Supplier</span>
+          </button>
+        </div>
+
+        <div id="suppliersListContainer" class="space-y-3"></div>
+      </section>
+
+    </main>
+
+    <!-- Floating Live Cost Estimate Mini Bubble Bar -->
+    <div id="floatingEstimateBar" class="hidden fixed bottom-16 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[428px] z-30">
+      <div class="bg-neutral-900 text-white rounded-full px-4 py-3 shadow-lg flex items-center justify-between gap-3 border border-neutral-700">
+        <div class="flex items-center gap-2.5">
+          <span id="floatingCountBadge" class="w-6 h-6 rounded-full bg-white text-neutral-900 text-xs font-bold flex items-center justify-center">0</span>
+          <div>
+            <div class="text-[11px] text-neutral-300 leading-none">Cost Estimate Total</div>
+            <div id="floatingTotalText" class="text-sm font-bold leading-tight mt-0.5">₱0.00</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button id="btnFloatingClear" type="button" class="px-2.5 py-1.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-xs font-medium transition">
+            Clear
+          </button>
+          <button id="btnFloatingViewEstimate" type="button" class="px-3.5 py-1.5 rounded-full bg-white text-neutral-900 hover:bg-neutral-100 text-xs font-semibold flex items-center gap-1 transition">
+            <span>View Estimate</span>
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Gemini Pill Navigation Bar -->
+    <nav class="sticky bottom-0 z-20 bg-white/95 backdrop-blur border-t border-neutral-200 px-4 py-2">
+      <div class="grid grid-cols-3 gap-1.5 bg-neutral-100 p-1 rounded-full">
+        <button id="navTabMaterials" type="button" class="nav-pill-btn py-2 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 bg-neutral-900 text-white transition">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+            <line x1="12" y1="22.08" x2="12" y2="12" />
+          </svg>
+          <span>Materials</span>
+        </button>
+
+        <button id="navTabEstimate" type="button" class="nav-pill-btn py-2 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 text-neutral-600 hover:text-neutral-900 transition relative">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="4" y="2" width="16" height="20" rx="2" />
+            <line x1="8" y1="6" x2="16" y2="6" />
+            <line x1="16" y1="14" x2="16" y2="18" />
+            <path d="M16 10h.01" />
+            <path d="M12 10h.01" />
+            <path d="M8 10h.01" />
+            <path d="M12 14h.01" />
+            <path d="M8 14h.01" />
+            <path d="M12 18h.01" />
+            <path d="M8 18h.01" />
+          </svg>
+          <span>Estimate</span>
+          <span id="navEstimateBadge" class="hidden ml-0.5 px-1.5 py-0.2 rounded-full bg-neutral-900 text-white text-[10px]">0</span>
+        </button>
+
+        <button id="navTabSuppliers" type="button" class="nav-pill-btn py-2 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 text-neutral-600 hover:text-neutral-900 transition">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          <span>Suppliers</span>
+        </button>
+      </div>
+    </nav>
+
+  </div>
+
+  <!-- MODAL 1: POP-UP BOX WHEN ADDING NEW MATERIAL (Ask to Copy from Old Supplier) -->
+  <div id="modalCopyPrompt" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-neutral-200 animate-bubble space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-full bg-neutral-900 text-white flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-neutral-900">Copy Material from Existing Supplier?</h3>
+            <p id="copyPromptSubtitle" class="text-xs text-neutral-500">Quickly reuse name, brand &amp; specs, then edit right away</p>
+          </div>
+        </div>
+        <button id="btnCloseCopyPrompt" type="button" class="w-7 h-7 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center text-xs">✕</button>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-neutral-50 border border-neutral-200 space-y-3">
+        <div>
+          <label for="copySourceSupplierSelect" class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-500 mb-1">1. Choose Existing Supplier</label>
+          <select id="copySourceSupplierSelect" class="w-full px-3 py-2 rounded-xl bg-white border border-neutral-300 text-xs font-medium text-neutral-900 focus:outline-none focus:border-neutral-900"></select>
+        </div>
+
+        <div>
+          <label for="copySourceMaterialSelect" class="block text-[11px] font-semibold uppercase tracking-wider text-neutral-500 mb-1">2. Select Material to Copy &amp; Edit</label>
+          <select id="copySourceMaterialSelect" class="w-full px-3 py-2 rounded-xl bg-white border border-neutral-300 text-xs font-medium text-neutral-900 focus:outline-none focus:border-neutral-900"></select>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-2 pt-1">
+        <button id="btnConfirmCopyMaterial" type="button" class="flex-1 py-2.5 px-4 rounded-full bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+          </svg>
+          <span>Yes, Copy &amp; Edit Details Now</span>
+        </button>
+        <button id="btnStartBlankMaterial" type="button" class="py-2.5 px-4 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-semibold transition">
+          No, Input Blank
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: ADD / EDIT MATERIAL -->
+  <div id="modalMaterialForm" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-5 shadow-2xl border border-neutral-200 animate-bubble space-y-4">
+      <div class="flex items-center justify-between border-b border-neutral-100 pb-3">
+        <div>
+          <h3 id="materialFormTitle" class="text-base font-bold text-neutral-900">Add Hardware Material</h3>
+          <p id="materialFormSubtitle" class="text-xs text-neutral-500">Select N/A on any specification to hide it from the item bubble</p>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button id="btnTriggerCopyInsideForm" type="button" class="px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-[11px] font-medium flex items-center gap-1 transition" title="Copy details from an old supplier's material">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+            <span>Copy Existing</span>
+          </button>
+          <button id="btnCloseMaterialForm" type="button" class="w-7 h-7 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center text-xs">✕</button>
+        </div>
+      </div>
+
+      <form id="materialForm" class="space-y-3.5">
+        <input type="hidden" id="editMaterialId" value="" />
+
+        <div>
+          <label for="inputMaterialName" class="block text-xs font-semibold text-neutral-800 mb-1">Material Name *</label>
+          <input
+            id="inputMaterialName"
+            type="text"
+            required
+            placeholder="e.g., Portland Cement, PVC Pipe, Corrugated GI Sheet"
+            class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-transparent focus:border-neutral-900 focus:bg-white text-sm text-neutral-900 focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label for="selectCategory" class="text-xs font-semibold text-neutral-800">Kind / Category</label>
+            <button type="button" data-custom-target="category" class="btn-toggle-custom text-[11px] font-medium text-neutral-600 underline hover:text-neutral-900">+ Type Custom Kind</button>
+          </div>
+          <select id="selectCategory" class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-transparent focus:border-neutral-900 focus:bg-white text-xs font-medium text-neutral-900 focus:outline-none"></select>
+          <div id="customBox_category" class="hidden mt-1.5 flex items-center gap-1.5">
+            <input id="customInput_category" type="text" placeholder="Type new category/kind..." class="flex-1 px-3 py-1.5 rounded-xl bg-white border border-neutral-300 text-xs focus:outline-none focus:border-neutral-900" />
+            <button type="button" data-custom-save="category" class="btn-save-custom px-3 py-1.5 rounded-xl bg-neutral-900 text-white text-xs font-medium">Add</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <!-- Brand -->
+          <div class="p-3 rounded-2xl bg-neutral-50 border border-neutral-200/80">
+            <div class="flex items-center justify-between mb-1">
+              <label for="selectBrand" class="text-xs font-semibold text-neutral-800">Brand</label>
+              <button type="button" data-custom-target="brand" class="btn-toggle-custom text-[11px] font-medium text-neutral-600 underline hover:text-neutral-900">+ Type Custom</button>
+            </div>
+            <select id="selectBrand" class="w-full px-3 py-2 rounded-xl bg-white border border-neutral-200 text-xs font-medium text-neutral-900 focus:outline-none focus:border-neutral-900"></select>
+            <div id="customBox_brand" class="hidden mt-1.5 flex items-center gap-1">
+              <input id="customInput_brand" type="text" placeholder="Type brand name..." class="flex-1 px-2.5 py-1.5 rounded-lg bg-white border border-neutral-300 text-xs focus:outline-none" />
+              <button type="button" data-custom-save="brand" class="btn-save-custom px-2.5 py-1.5 rounded-lg bg-neutral-900 text-white text-xs font-medium">Add</button>
+            </div>
+          </div>
+
+          <!-- Size -->
+          <div class="p-3 rounded-2xl bg-neutral-50 border border-neutral-200/80">
+            <div class="flex items-center justify-between mb-1">
+              <label for="selectSize" class="text-xs font-semibold text-neutral-800">Size</label>
+              <button type="button" data-custom-target="size" class="btn-toggle-custom text-[11px] font-medium text-neutral-600 underline hover:text-neutral-900">+ Type Custom</button>
+            </div>
+            <select id="selectSize" class="w-full px-3 py-2 rounded-xl bg-white border border-neutral-200 text-xs font-medium text-neutral-900 focus:outline-none focus:border-neutral-900"></select>
+            <div id="customBox_size" class="hidden mt-1.5 flex items-center gap-1">
+              <input id="customInput_size" type="text" placeholder="e.g. 1/2&quot; x 10ft..." class="flex-1 px-2.5 py-1.5 rounded-lg bg-white border border-neutral-300 text-xs focus:outline-none" />
+              <button type="button" data-custom-save="size" class="btn-save-custom px-2.5 py-1.5 rounded-lg bg-neutral-900 text-white text-xs font-medium">Add</button>
+            </div>
+          </div>
+
+          <!-- Weight -->
+          <div class="p-3 rounded-2xl bg-neutral-50 border border-neutral-200/80">
+            <div class="flex items-center justify-between mb-1">
+              <label for="selectWeight" class="text-xs font-semibold text-neutral-800">Weight</label>
+              <button type="button" data-custom-target="weight" class="btn-toggle-custom text-[11px] font-medium text-neutral-600 underline hover:text-neutral-900">+ Type Custom</button>
+            </div>
+            <select id="selectWeight" class="w-full px-3 py-2 rounded-xl bg-white border border-neutral-200 text-xs font-medium text-neutral-900 focus:outline-none focus:border-neutral-900"></select>
+            <div id="customBox_weight" class="hidden mt-1.5 flex items-center gap-1">
+              <input id="customInput_weight" type="text" placeholder="e.g. 40 kg..." class="flex-1 px-2.5 py-1.5 rounded-lg bg-white border border-neutral-300 text-xs focus:outline-none" />
+              <button type="button" data-custom-save="weight" class="btn-save-custom px-2.5 py-1.5 rounded-lg bg-neutral-900 text-white text-xs font-medium">Add</button>
+            </div>
+          </div>
+
+          <!-- Bags -->
+          <div class="p-3 rounded-2xl bg-neutral-50 border border-neutral-200/80">
+            <div class="flex items-center justify-between mb-1">
+              <label for="selectBags" class="text-xs font-semibold text-neutral-800">Bags / Packaging</label>
+              <button type="button" data-custom-target="bags" class="btn-toggle-custom text-[11px] font-medium text-neutral-600 underline hover:text-neutral-900">+ Type Custom</button>
+            </div>
+            <select id="selectBags" class="w-full px-3 py-2 rounded-xl bg-white border border-neutral-200 text-xs font-medium text-neutral-900 focus:outline-none focus:border-neutral-900"></select>
+            <div id="customBox_bags" class="hidden mt-1.5 flex items-center gap-1">
+              <input id="customInput_bags" type="text" placeholder="e.g. 1 Bag (50 pcs)..." class="flex-1 px-2.5 py-1.5 rounded-lg bg-white border border-neutral-300 text-xs focus:outline-none" />
+              <button type="button" data-custom-save="bags" class="btn-save-custom px-2.5 py-1.5 rounded-lg bg-neutral-900 text-white text-xs font-medium">Add</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-3.5 py-2.5 rounded-2xl bg-neutral-100/80 flex items-center justify-between gap-2">
+          <span class="text-[11px] font-medium text-neutral-500">Visible Spec Bubbles:</span>
+          <div id="specPreviewPills" class="flex flex-wrap items-center gap-1"></div>
+        </div>
+
+        <div class="space-y-2 pt-1">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-neutral-900">Supplier Prices (₱) *</span>
+              <p class="text-[11px] text-neutral-500">App automatically highlights the most affordable supplier</p>
+            </div>
+            <button id="btnAddInlineSupplierRow" type="button" class="px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs font-medium">
+              + New Supplier Name
+            </button>
+          </div>
+
+          <div id="inlineNewSupplierBox" class="hidden p-2.5 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center gap-2">
+            <input id="inlineNewSupplierName" type="text" placeholder="Supplier Name (e.g. CitiHardware)" class="flex-1 px-3 py-1.5 rounded-xl bg-white border border-neutral-300 text-xs focus:outline-none" />
+            <button id="btnSaveInlineSupplier" type="button" class="px-3 py-1.5 rounded-xl bg-neutral-900 text-white text-xs font-medium">Add Supplier</button>
+          </div>
+
+          <div id="materialSupplierPricesList" class="space-y-2 max-h-52 overflow-y-auto pr-1"></div>
+        </div>
+
+        <div id="materialFormError" class="hidden text-xs font-medium text-red-600 bg-red-50 px-3 py-2 rounded-xl"></div>
+
+        <div class="flex items-center justify-between gap-2 pt-2 border-t border-neutral-100">
+          <button id="btnDeleteMaterial" type="button" class="hidden px-3.5 py-2.5 rounded-full bg-neutral-100 hover:bg-red-50 text-red-600 text-xs font-semibold transition">
+            Delete Item
+          </button>
+          <div class="flex items-center gap-2 ml-auto">
+            <button id="btnCancelMaterialForm" type="button" class="px-4 py-2.5 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-xs font-semibold transition">
+              Cancel
+            </button>
+            <button type="submit" class="px-5 py-2.5 rounded-full bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold transition">
+              Save Material &amp; Prices
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: ADD NEW SUPPLIER -->
+  <div id="modalAddSupplier" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-5 shadow-2xl border border-neutral-200 animate-bubble space-y-4">
+      <div class="flex items-start justify-between border-b border-neutral-100 pb-3">
+        <div>
+          <h3 class="text-base font-bold text-neutral-900">Add New Supplier</h3>
+          <p id="addSupplierCopyNotice" class="text-xs text-neutral-500 mt-0.5">
+            Automatically copied recent materials from your first supplier. Edit the prices (₱) below and save!
+          </p>
+        </div>
+        <button id="btnCloseAddSupplier" type="button" class="w-7 h-7 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center text-xs">✕</button>
+      </div>
+
+      <form id="addSupplierForm" class="space-y-4">
+        <div>
+          <label for="inputNewSupplierName" class="block text-xs font-semibold text-neutral-800 mb-1">Supplier Name *</label>
+          <input
+            id="inputNewSupplierName"
+            type="text"
+            required
+            placeholder="e.g., CitiHardware, Handyman, Local Lumber Yard"
+            class="w-full px-3.5 py-2.5 rounded-2xl bg-neutral-100 border border-transparent focus:border-neutral-900 focus:bg-white text-sm text-neutral-900 focus:outline-none"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span id="copiedSupplierHeaderLabel" class="text-xs font-bold text-neutral-900">Copied Materials from First Supplier</span>
+            <span class="text-[11px] text-neutral-500">Edit price (₱) for each material</span>
+          </div>
+
+          <div id="newSupplierCopiedMaterialsList" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+        </div>
+
+        <div id="addSupplierError" class="hidden text-xs font-medium text-red-600 bg-red-50 px-3 py-2 rounded-xl"></div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-neutral-100">
+          <button id="btnCancelAddSupplier" type="button" class="px-4 py-2.5 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-xs font-semibold">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2.5 rounded-full bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold">
+            Save Supplier &amp; Edited Prices
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 4: CSV / EXCEL IMPORT & EXPORT -->
+  <div id="modalCsv" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-neutral-200 animate-bubble space-y-4">
+      <div class="flex items-center justify-between border-b border-neutral-100 pb-3">
+        <div>
+          <h3 class="text-base font-bold text-neutral-900">CSV / Excel Import &amp; Export</h3>
+          <p class="text-xs text-neutral-500">Backup or bulk-edit materials &amp; supplier prices in Excel</p>
+        </div>
+        <button id="btnCloseCsvModal" type="button" class="w-7 h-7 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center text-xs">✕</button>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 space-y-2.5">
+        <div>
+          <h4 class="text-xs font-bold text-neutral-900">Export Price List to Excel (.CSV)</h4>
+          <p class="text-[11px] text-neutral-500">Includes all materials, specs (Size, Weight, Bags, Brand) &amp; supplier prices</p>
+        </div>
+        <button id="btnDownloadCsv" type="button" class="w-full py-2.5 px-4 rounded-full bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold flex items-center justify-center gap-2 transition">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          <span>Download Hardware_Prices.csv</span>
+        </button>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 space-y-2.5">
+        <div>
+          <h4 class="text-xs font-bold text-neutral-900">Import from CSV / Excel</h4>
+          <p class="text-[11px] text-neutral-500">Upload a CSV file saved from Excel to add or update materials &amp; prices</p>
+        </div>
+        <input id="inputCsvFile" type="file" accept=".csv,text/csv" class="block w-full text-xs text-neutral-600 file:mr-3 file:py-2 file:px-3.5 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-neutral-900 file:text-white hover:file:bg-neutral-800 cursor-pointer" />
+      </div>
+
+      <div class="flex justify-end">
+        <button id="btnDoneCsvModal" type="button" class="px-4 py-2 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-semibold">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 5: OFFLINE & MULTI-DEVICE CLOUD SYNC -->
+  <div id="modalSync" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-neutral-200 animate-bubble space-y-4">
+      <div class="flex items-center justify-between border-b border-neutral-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-full bg-neutral-900 text-white flex items-center justify-center">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-neutral-900">Offline Storage &amp; Cloud Sync</h3>
+            <p class="text-xs text-neutral-500">Works 100% offline • Syncs across Android devices</p>
+          </div>
+        </div>
+        <button id="btnCloseSyncModal" type="button" class="w-7 h-7 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center text-xs">✕</button>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 space-y-3 text-xs">
+        <div class="flex items-center justify-between">
+          <span class="text-neutral-500">Local Offline Database</span>
+          <span class="font-semibold text-neutral-900">Active (Instant Save)</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-neutral-500">Last Cloud Sync</span>
+          <span id="lastSyncedTimestamp" class="font-semibold text-neutral-900">Just now</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-neutral-500">Simulate Offline Mode</span>
+          <button id="btnToggleOfflineSim" type="button" class="px-3 py-1 rounded-full bg-neutral-200 text-neutral-800 font-semibold text-[11px]">
+            Online (Cloud Connected)
+          </button>
+        </div>
+      </div>
+
+      <button id="btnSyncNow" type="button" class="w-full py-2.5 px-4 rounded-full bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold flex items-center justify-center gap-2 transition">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10" />
+          <polyline points="1 20 1 14 7 14" />
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+        </svg>
+        <span>Sync Across Devices Now</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL 6: INSTALL PWA TO ANDROID HOME SCREEN -->
+  <div id="modalPwaInstall" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-neutral-200 animate-bubble space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-neutral-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-2xl bg-neutral-900 text-white flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 3c.5 4.5 4.5 8.5 9 9-4.5.5-8.5 4.5-9 9-.5-4.5-4.5-8.5-9-9 4.5-.5 8.5-4.5 9-9z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-neutral-900">Install MatPrice on Android</h3>
+            <p class="text-xs text-neutral-500">Progressive Web App (PWA) • Works Offline</p>
+          </div>
+        </div>
+        <button id="btnClosePwaModal" type="button" class="w-7 h-7 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center text-xs">✕</button>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-neutral-900">Option 1: One-Tap Home Screen Install</span>
+          <span id="pwaStatusPill" class="px-2 py-0.5 rounded-full bg-neutral-900 text-white text-[10px] font-semibold">PWA Ready</span>
+        </div>
+        <p class="text-xs text-neutral-600 leading-relaxed">
+          If you have this page open in <span class="font-semibold text-neutral-900">Chrome on Android</span>, tap below (or tap Chrome's <span class="font-semibold text-neutral-900">⋮ Menu → Add to Home screen</span>) to install MatPrice as a full-screen app icon.
+        </p>
+        <button id="btnTriggerNativePwaInstall" type="button" class="w-full py-2.5 px-4 rounded-full bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold flex items-center justify-center gap-2 transition">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+            <line x1="12" y1="18" x2="12.01" y2="18" />
+          </svg>
+          <span id="nativeInstallBtnText">Trigger Android Home Screen Prompt</span>
+        </button>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 space-y-2.5">
+        <h4 class="text-xs font-bold text-neutral-900">Option 2: Download Standalone App File (.HTML)</h4>
+        <p class="text-xs text-neutral-600 leading-relaxed">
+          Save the self-contained <span class="font-semibold text-neutral-900">MatPrice_PWA.html</span> file directly to your Android phone so you can open it anytime without internet.
+        </p>
+        <button id="btnDownloadStandalonePwa" type="button" class="w-full py-2.5 px-4 rounded-full bg-white hover:bg-neutral-100 border border-neutral-300 text-neutral-900 text-xs font-semibold flex items-center justify-center gap-2 transition">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          <span>Download MatPrice_PWA.html</span>
+        </button>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-neutral-100/70 space-y-2 text-xs text-neutral-700">
+        <div class="font-bold text-neutral-900">How to pin to your Android Home Screen:</div>
+        <div class="flex items-start gap-2">
+          <span class="w-4 h-4 rounded-full bg-neutral-900 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+          <span>Open the downloaded file or hosted link in <span class="font-semibold text-neutral-900">Google Chrome</span> on your Android phone.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="w-4 h-4 rounded-full bg-neutral-900 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+          <span>Tap the top-right <span class="font-semibold text-neutral-900">⋮ three-dot menu</span> and select <span class="font-semibold text-neutral-900">Add to Home screen</span> (or <span class="font-semibold text-neutral-900">Install app</span>).</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="w-4 h-4 rounded-full bg-neutral-900 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+          <span>Launch <span class="font-semibold text-neutral-900">MatPrice</span> from your home screen—it opens in full-screen monochrome bubble mode and works offline.</span>
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <button id="btnDonePwaModal" type="button" class="px-4 py-2 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-semibold">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Minimalist Monochrome Toast Notification -->
+  <div id="toastContainer" class="fixed top-14 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col items-center gap-2"></div>
+
+  <script>
+    (function () {
+      const STORAGE_KEY = 'matprice_hardware_app_v1';
+
+      function getDefaultState() {
+        return {
+          suppliers: [
+            { id: 'sup_1', name: 'CW Home Depot' },
+            { id: 'sup_2', name: 'Wilcon Depot' },
+            { id: 'sup_3', name: 'AllHome' }
+          ],
+          options: {
+            category: ['Masonry & Cement', 'Plumbing & Pipes', 'Steel & Rebar', 'Plywood & Wood', 'Roofing & GI', 'Fasteners & Nails', 'Paints & Finishes', 'Electrical'],
+            brand: ['N/A', 'Eagle Cement', 'Republic Cement', 'Holcim', 'Neltex', 'Moldex', 'Pag-asa Steel', 'Santa Clara', 'Boysen', 'Davies', 'Panasonic'],
+            size: ['N/A', '1/2" x 10ft', '3/4" x 10ft', '4" x 10ft', '10mm x 6m', '12mm x 6m', '1/4" x 4\' x 8\'', '1/2" x 4\' x 8\'', '0.40mm x 8ft', '2"', '4"', '4 Liters (1 Gal)'],
+            weight: ['N/A', '40 kg', '25 kg', '10 kg', '5 kg', '1 kg'],
+            bags: ['N/A', '1 Bag', '1 Sack', 'Pack of 100', '1 Box (1 kg)']
+          },
+          materials: [
+            {
+              id: 'mat_1',
+              name: 'Portland Cement Type 1P',
+              category: 'Masonry & Cement',
+              brand: 'Eagle Cement',
+              size: 'N/A',
+              weight: '40 kg',
+              bags: '1 Bag',
+              prices: { 'sup_1': 228.00, 'sup_2': 235.00, 'sup_3': 242.00 },
+              selectedSupplierId: null
+            },
+            {
+              id: 'mat_2',
+              name: 'Portland Cement Type 1P',
+              category: 'Masonry & Cement',
+              brand: 'Republic Cement',
+              size: 'N/A',
+              weight: '40 kg',
+              bags: '1 Bag',
+              prices: { 'sup_1': 232.00, 'sup_2': 225.00, 'sup_3': 238.00 },
+              selectedSupplierId: null
+            },
+            {
+              id: 'mat_3',
+              name: 'uPVC Sanitary Pipe Orange Series 1000',
+              category: 'Plumbing & Pipes',
+              brand: 'Neltex',
+              size: '4" x 10ft',
+              weight: 'N/A',
+              bags: 'N/A',
+              prices: { 'sup_1': 645.00, 'sup_2': 630.00, 'sup_3': 660.00 },
+              selectedSupplierId: null
+            },
+            {
+              id: 'mat_4',
+              name: 'uPVC Blue Water Pipe',
+              category: 'Plumbing & Pipes',
+              brand: 'Moldex',
+              size: '1/2" x 10ft',
+              weight: 'N/A',
+              bags: 'N/A',
+              prices: { 'sup_1': 98.00, 'sup_2': 105.00, 'sup_3': 94.00 },
+              selectedSupplierId: null
+            },
+            {
+              id: 'mat_5',
+              name: 'Deformed Steel Rebar Grade 40',
+              category: 'Steel & Rebar',
+              brand: 'Pag-asa Steel',
+              size: '10mm x 6m',
+              weight: 'N/A',
+              bags: 'N/A',
+              prices: { 'sup_1': 172.00, 'sup_2': 178.00, 'sup_3': 185.00 },
+              selectedSupplierId: null
+            },
+            {
+              id: 'mat_6',
+              name: 'Marine Plywood Standard',
+              category: 'Plywood & Wood',
+              brand: 'Santa Clara',
+              size: '1/4" x 4\' x 8\'',
+              weight: 'N/A',
+              bags: 'N/A',
+              prices: { 'sup_1': 495.00, 'sup_2': 480.00, 'sup_3': 510.00 },
+              selectedSupplierId: null
+            },
+            {
+              id: 'mat_7',
+              name: 'Common Wire Nails (CWN)',
+              category: 'Fasteners & Nails',
+              brand: 'N/A',
+              size: '2"',
+              weight: '1 kg',
+              bags: '1 Box (1 kg)',
+              prices: { 'sup_1': 78.00, 'sup_2': 82.00, 'sup_3': 85.00 },
+              selectedSupplierId: null
+            },
+            {
+              id: 'mat_8',
+              name: 'Permacoat Flat Latex White #701',
+              category: 'Paints & Finishes',
+              brand: 'Boysen',
+              size: '4 Liters (1 Gal)',
+              weight: 'N/A',
+              bags: 'N/A',
+              prices: { 'sup_1': 715.00, 'sup_2': 710.00, 'sup_3': 735.00 },
+              selectedSupplierId: null
+            }
+          ],
+          estimateQty: {
+            'mat_1': 10,
+            'mat_5': 15
+          },
+          lastSynced: 'Today, 12:14 PM',
+          isOfflineSimulated: false
+        };
+      }
+
+      let state = loadState();
+      let activeTab = 'materials';
+      let activeCategoryFilter = 'ALL';
+      let activeBrandFilter = 'ALL';
+      let activeSort = 'name';
+      let searchQuery = '';
+      let isMobileFrame = true;
+      let preselectedSupplierForNewMaterial = null;
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed.materials) && Array.isArray(parsed.suppliers)) {
+              return parsed;
+            }
+          }
+        } catch (e) {}
+        return getDefaultState();
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {}
+      }
+
+      function formatPeso(num) {
+        const val = Number(num);
+        if (isNaN(val)) return '₱0.00';
+        return '₱' + val.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function escapeHtml(str) {
+        return String(str ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function showToast(message) {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = 'px-4 py-2 rounded-full bg-neutral-900 text-white text-xs font-medium shadow-lg border border-neutral-700 animate-bubble flex items-center gap-2';
+        toast.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-white"></span><span>${escapeHtml(message)}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transition = 'opacity 0.2s ease';
+          setTimeout(() => toast.remove(), 220);
+        }, 2500);
+      }
+
+      function getMaterialPricingInfo(material) {
+        const entries = [];
+        state.suppliers.forEach(sup => {
+          const rawPrice = material.prices ? material.prices[sup.id] : undefined;
+          if (rawPrice !== undefined && rawPrice !== null && rawPrice !== '' && !isNaN(Number(rawPrice)) && Number(rawPrice) > 0) {
+            entries.push({
+              supplierId: sup.id,
+              supplierName: sup.name,
+              price: Number(rawPrice)
+            });
+          }
+        });
+
+        entries.sort((a, b) => a.price - b.price);
+        const lowest = entries.length > 0 ? entries[0] : null;
+
+        let activeEntry = lowest;
+        if (material.selectedSupplierId) {
+          const found = entries.find(e => e.supplierId === material.selectedSupplierId);
+          if (found) activeEntry = found;
+        }
+
+        return {
+          entries,
+          lowest,
+          active: activeEntry,
+          isLowestSelected: Boolean(lowest && activeEntry && lowest.supplierId === activeEntry.supplierId)
+        };
+      }
+
+      function getVisibleSpecs(material) {
+        const specs = [];
+        if (material.brand && material.brand !== 'N/A') {
+          specs.push({ label: 'Brand', value: material.brand });
+        }
+        if (material.size && material.size !== 'N/A') {
+          specs.push({ label: 'Size', value: material.size });
+        }
+        if (material.weight && material.weight !== 'N/A') {
+          specs.push({ label: 'Weight', value: material.weight });
+        }
+        if (material.bags && material.bags !== 'N/A') {
+          specs.push({ label: 'Bags', value: material.bags });
+        }
+        return specs;
+      }
+
+      function renderFilters() {
+        const catRow = document.getElementById('categoryFilterRow');
+        const usedCategories = ['ALL', ...state.options.category];
+        catRow.innerHTML = usedCategories.map(cat => {
+          const isActive = activeCategoryFilter === cat;
+          const label = cat === 'ALL' ? 'All Kinds' : cat;
+          return `
+            <button
+              type="button"
+              data-cat="${escapeHtml(cat)}"
+              class="cat-filter-btn gemini-pill px-3 py-1.5 text-xs font-medium shrink-0 ${
+                isActive
+                  ? 'bg-neutral-900 text-white'
+                  : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-700'
+              }"
+            >
+              ${escapeHtml(label)}
+            </button>
+          `;
+        }).join('');
+
+        catRow.querySelectorAll('.cat-filter-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            activeCategoryFilter = btn.getAttribute('data-cat');
+            renderAll();
+          });
+        });
+
+        const brandSelect = document.getElementById('filterBrandSelect');
+        const brands = state.options.brand.filter(b => b !== 'N/A');
+        brandSelect.innerHTML = `<option value="ALL">All Brands</option>` +
+          brands.map(b => `<option value="${escapeHtml(b)}" ${activeBrandFilter === b ? 'selected' : ''}>${escapeHtml(b)}</option>`).join('');
+      }
+
+      function renderMaterialsList() {
+        const container = document.getElementById('materialsListContainer');
+        const countLabel = document.getElementById('materialsCountLabel');
+
+        let filtered = state.materials.filter(mat => {
+          if (activeCategoryFilter !== 'ALL' && mat.category !== activeCategoryFilter) return false;
+          if (activeBrandFilter !== 'ALL' && mat.brand !== activeBrandFilter) return false;
+          if (searchQuery.trim() !== '') {
+            const q = searchQuery.toLowerCase();
+            const supplierNames = state.suppliers
+              .filter(s => mat.prices && mat.prices[s.id] > 0)
+              .map(s => s.name.toLowerCase())
+              .join(' ');
+            const haystack = `${mat.name} ${mat.category} ${mat.brand} ${mat.size} ${mat.weight} ${mat.bags} ${supplierNames}`.toLowerCase();
+            if (!haystack.includes(q)) return false;
+          }
+          return true;
+        });
+
+        filtered.sort((a, b) => {
+          if (activeSort === 'name') return a.name.localeCompare(b.name);
+          const priceA = getMaterialPricingInfo(a).active?.price ?? 99999999;
+          const priceB = getMaterialPricingInfo(b).active?.price ?? 99999999;
+          return activeSort === 'price-asc' ? priceA - priceB : priceB - priceA;
+        });
+
+        countLabel.textContent = `Showing ${filtered.length} of ${state.materials.length} materials`;
+
+        if (filtered.length === 0) {
+          container.innerHTML = `
+            <div class="gemini-bubble p-8 text-center space-y-2.5">
+              <div class="w-10 h-10 rounded-full bg-white mx-auto flex items-center justify-center text-neutral-500 border border-neutral-200">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+              </div>
+              <p class="text-sm font-semibold text-neutral-900">No matching hardware materials</p>
+              <p class="text-xs text-neutral-500">Try clearing your filters or add a new material manually.</p>
+              <button type="button" id="btnEmptyAddMaterial" class="mt-1 px-4 py-2 rounded-full bg-neutral-900 text-white text-xs font-semibold">
+                + Add Material
+              </button>
+            </div>
+          `;
+          const emptyBtn = document.getElementById('btnEmptyAddMaterial');
+          if (emptyBtn) emptyBtn.addEventListener('click', () => openCopyPromptModal(null));
+          return;
+        }
+
+        container.innerHTML = filtered.map(mat => {
+          const pricing = getMaterialPricingInfo(mat);
+          const visibleSpecs = getVisibleSpecs(mat);
+          const qty = Number(state.estimateQty[mat.id] || 0);
+
+          const specPillsHtml = visibleSpecs.map(s => `
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white border border-neutral-200/90 text-[11px] text-neutral-700 font-medium">
+              <span class="text-neutral-400">${escapeHtml(s.label)}:</span>
+              <span class="text-neutral-900">${escapeHtml(s.value)}</span>
+            </span>
+          `).join('');
+
+          const supplierOptionsHtml = pricing.entries.map(entry => {
+            const isLowest = pricing.lowest && entry.supplierId === pricing.lowest.supplierId;
+            const isSelected = pricing.active && entry.supplierId === pricing.active.supplierId;
+            return `<option value="${escapeHtml(entry.supplierId)}" ${isSelected ? 'selected' : ''}>
+              ${escapeHtml(entry.supplierName)} — ${formatPeso(entry.price)}${isLowest ? ' (Lowest)' : ''}
+            </option>`;
+          }).join('');
+
+          return `
+            <div class="gemini-bubble-card p-3.5 space-y-2.5">
+              <div class="flex items-start justify-between gap-2">
+                <div class="space-y-1 min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="px-2 py-0.5 rounded-full bg-neutral-200/70 text-neutral-700 text-[10px] font-semibold tracking-wide">
+                      ${escapeHtml(mat.category)}
+                    </span>
+                    ${pricing.isLowestSelected ? `
+                      <span class="px-2 py-0.5 rounded-full bg-neutral-900 text-white text-[10px] font-medium flex items-center gap-1">
+                        <span>★ Lowest Price</span>
+                      </span>
+                    ` : `
+                      <span class="px-2 py-0.5 rounded-full bg-neutral-200 text-neutral-800 text-[10px] font-medium">
+                        Custom Supplier Selected
+                      </span>
+                    `}
+                  </div>
+                  <h3 class="text-sm font-bold text-neutral-900 leading-snug break-words">${escapeHtml(mat.name)}</h3>
+                </div>
+
+                <div class="text-right shrink-0 flex items-start gap-1.5">
+                  <div>
+                    <div class="text-base font-bold text-neutral-900 leading-tight">
+                      ${pricing.active ? formatPeso(pricing.active.price) : 'No Price'}
+                    </div>
+                    <div class="text-[11px] text-neutral-500 leading-tight">
+                      ${pricing.active ? escapeHtml(pricing.active.supplierName) : '—'}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    data-edit-id="${escapeHtml(mat.id)}"
+                    class="btn-edit-material w-7 h-7 rounded-full bg-white hover:bg-neutral-200 border border-neutral-200 text-neutral-700 flex items-center justify-center transition"
+                    title="Edit Material &amp; Supplier Prices"
+                    aria-label="Edit ${escapeHtml(mat.name)}"
+                  >
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              ${visibleSpecs.length > 0 ? `
+                <div class="flex flex-wrap items-center gap-1.5">
+                  ${specPillsHtml}
+                </div>
+              ` : ''}
+
+              <div class="pt-1.5 border-t border-neutral-200/60 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 flex-1 min-w-[180px]">
+                  <label for="supSelect_${escapeHtml(mat.id)}" class="text-[11px] font-medium text-neutral-500 shrink-0">Supplier:</label>
+                  <select
+                    id="supSelect_${escapeHtml(mat.id)}"
+                    data-mat-id="${escapeHtml(mat.id)}"
+                    class="supplier-override-select flex-1 px-2.5 py-1.5 rounded-full bg-white border border-neutral-200 hover:border-neutral-400 text-xs font-medium text-neutral-900 focus:outline-none focus:border-neutral-900 cursor-pointer"
+                  >
+                    ${supplierOptionsHtml}
+                  </select>
+                </div>
+
+                <div class="flex items-center gap-1.5 shrink-0">
+                  ${qty === 0 ? `
+                    <button
+                      type="button"
+                      data-add-est="${escapeHtml(mat.id)}"
+                      class="btn-add-estimate px-3 py-1.5 rounded-full bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold flex items-center gap-1 transition"
+                    >
+                      <span>+ Estimate</span>
+                    </button>
+                  ` : `
+                    <div class="flex items-center gap-1 bg-white border border-neutral-300 rounded-full px-1.5 py-0.5">
+                      <button
+                        type="button"
+                        data-qty-minus="${escapeHtml(mat.id)}"
+                        class="btn-qty-minus w-6 h-6 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs font-bold flex items-center justify-center"
+                        aria-label="Decrease quantity"
+                      >−</button>
+                      <input
+                        type="number"
+                        min="0"
+                        value="${qty}"
+                        data-qty-input="${escapeHtml(mat.id)}"
+                        aria-label="Quantity for ${escapeHtml(mat.name)}"
+                        class="input-qty-direct w-11 text-center text-xs font-bold text-neutral-900 bg-transparent focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        data-qty-plus="${escapeHtml(mat.id)}"
+                        class="btn-qty-plus w-6 h-6 rounded-full bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold flex items-center justify-center"
+                        aria-label="Increase quantity"
+                      >+</button>
+                    </div>
+                  `}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        container.querySelectorAll('.supplier-override-select').forEach(sel => {
+          sel.addEventListener('change', (e) => {
+            const matId = sel.getAttribute('data-mat-id');
+            const mat = state.materials.find(m => m.id === matId);
+            if (mat) {
+              const pricing = getMaterialPricingInfo(mat);
+              const chosenId = e.target.value;
+              mat.selectedSupplierId = (pricing.lowest && pricing.lowest.supplierId === chosenId) ? null : chosenId;
+              saveState();
+              renderAll();
+            }
+          });
+        });
+
+        container.querySelectorAll('.btn-edit-material').forEach(btn => {
+          btn.addEventListener('click', () => {
+            openMaterialFormModal(btn.getAttribute('data-edit-id'));
+          });
+        });
+
+        container.querySelectorAll('.btn-add-estimate').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const matId = btn.getAttribute('data-add-est');
+            state.estimateQty[matId] = 1;
+            saveState();
+            renderAll();
+          });
+        });
+
+        container.querySelectorAll('.btn-qty-minus').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const matId = btn.getAttribute('data-qty-minus');
+            const current = Number(state.estimateQty[matId] || 0);
+            if (current <= 1) {
+              delete state.estimateQty[matId];
+            } else {
+              state.estimateQty[matId] = current - 1;
+            }
+            saveState();
+            renderAll();
+          });
+        });
+
+        container.querySelectorAll('.btn-qty-plus').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const matId = btn.getAttribute('data-qty-plus');
+            const current = Number(state.estimateQty[matId] || 0);
+            state.estimateQty[matId] = current + 1;
+            saveState();
+            renderAll();
+          });
+        });
+
+        container.querySelectorAll('.input-qty-direct').forEach(inp => {
+          inp.addEventListener('change', () => {
+            const matId = inp.getAttribute('data-qty-input');
+            const val = Math.max(0, parseInt(inp.value, 10) || 0);
+            if (val === 0) {
+              delete state.estimateQty[matId];
+            } else {
+              state.estimateQty[matId] = val;
+            }
+            saveState();
+            renderAll();
+          });
+        });
+      }
+
+      function renderCostEstimate() {
+        const itemsContainer = document.getElementById('estimateItemsContainer');
+        const grandTotalEl = document.getElementById('estimateGrandTotal');
+        const metaSummaryEl = document.getElementById('estimateMetaSummary');
+        const floatingBar = document.getElementById('floatingEstimateBar');
+        const floatingCountBadge = document.getElementById('floatingCountBadge');
+        const floatingTotalText = document.getElementById('floatingTotalText');
+        const navBadge = document.getElementById('navEstimateBadge');
+
+        let totalCost = 0;
+        let totalUnits = 0;
+        const activeItems = [];
+
+        state.materials.forEach(mat => {
+          const qty = Number(state.estimateQty[mat.id] || 0);
+          if (qty > 0) {
+            const pricing = getMaterialPricingInfo(mat);
+            const unitPrice = pricing.active ? pricing.active.price : 0;
+            const lineTotal = unitPrice * qty;
+            totalCost += lineTotal;
+            totalUnits += qty;
+            activeItems.push({ mat, qty, pricing, unitPrice, lineTotal });
+          }
+        });
+
+        grandTotalEl.textContent = formatPeso(totalCost);
+        metaSummaryEl.textContent = `${activeItems.length} material${activeItems.length === 1 ? '' : 's'} (${totalUnits} total units) • Price checking only`;
+
+        if (activeItems.length > 0) {
+          navBadge.textContent = String(activeItems.length);
+          navBadge.classList.remove('hidden');
+          if (activeTab === 'materials') {
+            floatingBar.classList.remove('hidden');
+          } else {
+            floatingBar.classList.add('hidden');
+          }
+          floatingCountBadge.textContent = String(activeItems.length);
+          floatingTotalText.textContent = formatPeso(totalCost);
+        } else {
+          navBadge.classList.add('hidden');
+          floatingBar.classList.add('hidden');
+        }
+
+        if (activeItems.length === 0) {
+          itemsContainer.innerHTML = `
+            <div class="gemini-bubble p-8 text-center space-y-2">
+              <p class="text-sm font-semibold text-neutral-900">Your cost estimate list is empty</p>
+              <p class="text-xs text-neutral-500">Tap "+ Estimate" on any hardware material to check total costs across quantities.</p>
+            </div>
+          `;
+          return;
+        }
+
+        itemsContainer.innerHTML = activeItems.map(({ mat, qty, pricing, unitPrice, lineTotal }) => {
+          const visibleSpecs = getVisibleSpecs(mat);
+          const specsText = visibleSpecs.map(s => `${s.label}: ${s.value}`).join(' • ');
+
+          const supplierOptionsHtml = pricing.entries.map(entry => {
+            const isLowest = pricing.lowest && entry.supplierId === pricing.lowest.supplierId;
+            const isSelected = pricing.active && entry.supplierId === pricing.active.supplierId;
+            return `<option value="${escapeHtml(entry.supplierId)}" ${isSelected ? 'selected' : ''}>
+              ${escapeHtml(entry.supplierName)} — ${formatPeso(entry.price)}${isLowest ? ' (Lowest)' : ''}
+            </option>`;
+          }).join('');
+
+          return `
+            <div class="gemini-bubble-card p-3.5 space-y-2.5">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <h4 class="text-sm font-bold text-neutral-900">${escapeHtml(mat.name)}</h4>
+                  ${specsText ? `<p class="text-[11px] text-neutral-500 mt-0.5">${escapeHtml(specsText)}</p>` : ''}
+                </div>
+                <div class="text-right">
+                  <div class="text-sm font-bold text-neutral-900">${formatPeso(lineTotal)}</div>
+                  <div class="text-[11px] text-neutral-500">${formatPeso(unitPrice)} × ${qty}</div>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center justify-between gap-2 pt-1.5 border-t border-neutral-200/60">
+                <select
+                  data-est-sup-mat="${escapeHtml(mat.id)}"
+                  aria-label="Select supplier for ${escapeHtml(mat.name)}"
+                  class="est-supplier-select px-2.5 py-1 rounded-full bg-white border border-neutral-200 text-xs font-medium text-neutral-900 focus:outline-none"
+                >
+                  ${supplierOptionsHtml}
+                </select>
+
+                <div class="flex items-center gap-1 bg-white border border-neutral-300 rounded-full px-1.5 py-0.5">
+                  <button type="button" data-est-minus="${escapeHtml(mat.id)}" class="w-6 h-6 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs font-bold">−</button>
+                  <input type="number" min="0" value="${qty}" data-est-input="${escapeHtml(mat.id)}" aria-label="Quantity" class="w-11 text-center text-xs font-bold text-neutral-900 bg-transparent focus:outline-none" />
+                  <button type="button" data-est-plus="${escapeHtml(mat.id)}" class="w-6 h-6 rounded-full bg-neutral-900 text-white text-xs font-bold">+</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        itemsContainer.querySelectorAll('.est-supplier-select').forEach(sel => {
+          sel.addEventListener('change', (e) => {
+            const matId = sel.getAttribute('data-est-sup-mat');
+            const mat = state.materials.find(m => m.id === matId);
+            if (mat) {
+              const pricing = getMaterialPricingInfo(mat);
+              const chosenId = e.target.value;
+              mat.selectedSupplierId = (pricing.lowest && pricing.lowest.supplierId === chosenId) ? null : chosenId;
+              saveState();
+              renderAll();
+            }
+          });
+        });
+
+        itemsContainer.querySelectorAll('[data-est-minus]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-est-minus');
+            const cur = Number(state.estimateQty[id] || 0);
+            if (cur <= 1) delete state.estimateQty[id];
+            else state.estimateQty[id] = cur - 1;
+            saveState();
+            renderAll();
+          });
+        });
+
+        itemsContainer.querySelectorAll('[data-est-plus]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-est-plus');
+            state.estimateQty[id] = Number(state.estimateQty[id] || 0) + 1;
+            saveState();
+            renderAll();
+          });
+        });
+
+        itemsContainer.querySelectorAll('[data-est-input]').forEach(inp => {
+          inp.addEventListener('change', () => {
+            const id = inp.getAttribute('data-est-input');
+            const val = Math.max(0, parseInt(inp.value, 10) || 0);
+            if (val === 0) delete state.estimateQty[id];
+            else state.estimateQty[id] = val;
+            saveState();
+            renderAll();
+          });
+        });
+      }
+
+      function renderSuppliersTab() {
+        const container = document.getElementById('suppliersListContainer');
+
+        container.innerHTML = state.suppliers.map((sup, idx) => {
+          const supplierMaterials = state.materials.filter(m => m.prices && m.prices[sup.id] !== undefined && Number(m.prices[sup.id]) > 0);
+          return `
+            <div class="gemini-bubble-card p-4 space-y-3">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="w-7 h-7 rounded-full bg-neutral-900 text-white text-xs font-bold flex items-center justify-center">
+                    ${idx + 1}
+                  </span>
+                  <div>
+                    <h3 class="text-sm font-bold text-neutral-900">${escapeHtml(sup.name)}</h3>
+                    <p class="text-[11px] text-neutral-500">${supplierMaterials.length} priced materials${idx === 0 ? ' • Primary Source for New Supplier Auto-Copy' : ''}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  data-add-mat-for-sup="${escapeHtml(sup.id)}"
+                  class="btn-add-mat-supplier px-3 py-1.5 rounded-full bg-white hover:bg-neutral-100 border border-neutral-200 text-neutral-900 text-xs font-semibold flex items-center gap-1 transition"
+                >
+                  <span>+ Add Material</span>
+                </button>
+              </div>
+
+              <div class="space-y-1.5 pt-1 border-t border-neutral-200/60">
+                ${state.materials.map(mat => {
+                  const curPrice = (mat.prices && mat.prices[sup.id] !== undefined) ? mat.prices[sup.id] : '';
+                  const specs = getVisibleSpecs(mat).map(s => s.value).join(', ');
+                  return `
+                    <div class="flex items-center justify-between gap-2 py-1.5 px-2.5 rounded-xl bg-white border border-neutral-100">
+                      <div class="min-w-0">
+                        <div class="text-xs font-semibold text-neutral-900 truncate">${escapeHtml(mat.name)}</div>
+                        ${specs ? `<div class="text-[10px] text-neutral-500 truncate">${escapeHtml(specs)}</div>` : ''}
+                      </div>
+                      <div class="flex items-center gap-1 shrink-0">
+                        <span class="text-xs font-medium text-neutral-500">₱</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                          value="${curPrice !== '' ? Number(curPrice).toFixed(2) : ''}"
+                          data-sup-price-edit="${escapeHtml(sup.id)}"
+                          data-mat-price-edit="${escapeHtml(mat.id)}"
+                          aria-label="${escapeHtml(sup.name)} price for ${escapeHtml(mat.name)}"
+                          class="input-supplier-inline-price w-24 px-2 py-1 rounded-lg bg-neutral-100 focus:bg-white border border-transparent focus:border-neutral-900 text-right text-xs font-semibold text-neutral-900 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        container.querySelectorAll('.btn-add-mat-supplier').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const supId = btn.getAttribute('data-add-mat-for-sup');
+            openCopyPromptModal(supId);
+          });
+        });
+
+        container.querySelectorAll('.input-supplier-inline-price').forEach(inp => {
+          inp.addEventListener('change', () => {
+            const supId = inp.getAttribute('data-sup-price-edit');
+            const matId = inp.getAttribute('data-mat-price-edit');
+            const mat = state.materials.find(m => m.id === matId);
+            if (!mat) return;
+            if (!mat.prices) mat.prices = {};
+            const val = parseFloat(inp.value);
+            if (isNaN(val) || val <= 0) {
+              delete mat.prices[supId];
+            } else {
+              mat.prices[supId] = Number(val.toFixed(2));
+            }
+            saveState();
+            renderAll();
+            showToast('Updated supplier price');
+          });
+        });
+      }
+
+      function openCopyPromptModal(targetSupplierId) {
+        preselectedSupplierForNewMaterial = targetSupplierId || null;
+        const modal = document.getElementById('modalCopyPrompt');
+        const supSelect = document.getElementById('copySourceSupplierSelect');
+        const subtitle = document.getElementById('copyPromptSubtitle');
+
+        if (targetSupplierId) {
+          const targetSup = state.suppliers.find(s => s.id === targetSupplierId);
+          subtitle.textContent = targetSup
+            ? `Adding material for ${targetSup.name}. Copy details (name, brand, specs) from an existing supplier?`
+            : 'Copy material details from an existing supplier and edit before saving?';
+        } else {
+          subtitle.textContent = 'Want to copy material details (name, brand, specs) from an existing supplier and edit them right away?';
+        }
+
+        supSelect.innerHTML = state.suppliers.map(s =>
+          `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}</option>`
+        ).join('');
+
+        populateCopySourceMaterials();
+        modal.classList.remove('hidden');
+      }
+
+      function populateCopySourceMaterials() {
+        const supSelect = document.getElementById('copySourceSupplierSelect');
+        const matSelect = document.getElementById('copySourceMaterialSelect');
+        const chosenSupId = supSelect.value;
+
+        const matchingMaterials = state.materials.filter(m =>
+          !chosenSupId || (m.prices && m.prices[chosenSupId] !== undefined)
+        );
+        const list = matchingMaterials.length > 0 ? matchingMaterials : state.materials;
+
+        matSelect.innerHTML = list.map(m => {
+          const specs = getVisibleSpecs(m).map(s => s.value).join(' • ');
+          const price = (m.prices && m.prices[chosenSupId]) ? ` — ${formatPeso(m.prices[chosenSupId])}` : '';
+          return `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name)}${specs ? ` (${escapeHtml(specs)})` : ''}${price}</option>`;
+        }).join('');
+      }
+
+      function populateDropdownSelects(selectedValues) {
+        const fields = ['category', 'brand', 'size', 'weight', 'bags'];
+        fields.forEach(field => {
+          const selectId = 'select' + field.charAt(0).toUpperCase() + field.slice(1);
+          const sel = document.getElementById(selectId);
+          if (!sel) return;
+          const opts = state.options[field] || [];
+          const currentVal = selectedValues[field] ?? (field === 'category' ? opts[0] : 'N/A');
+          if (currentVal && !opts.includes(currentVal)) {
+            opts.push(currentVal);
+          }
+          sel.innerHTML = opts.map(o =>
+            `<option value="${escapeHtml(o)}" ${o === currentVal ? 'selected' : ''}>${escapeHtml(o === 'N/A' ? 'N/A (Not Viewable)' : o)}</option>`
+          ).join('');
+        });
+        updateSpecPreviewPills();
+      }
+
+      function updateSpecPreviewPills() {
+        const previewContainer = document.getElementById('specPreviewPills');
+        if (!previewContainer) return;
+        const brand = document.getElementById('selectBrand').value;
+        const size = document.getElementById('selectSize').value;
+        const weight = document.getElementById('selectWeight').value;
+        const bags = document.getElementById('selectBags').value;
+
+        const active = [];
+        if (brand && brand !== 'N/A') active.push(`Brand: ${brand}`);
+        if (size && size !== 'N/A') active.push(`Size: ${size}`);
+        if (weight && weight !== 'N/A') active.push(`Weight: ${weight}`);
+        if (bags && bags !== 'N/A') active.push(`Bags: ${bags}`);
+
+        if (active.length === 0) {
+          previewContainer.innerHTML = `<span class="text-[11px] text-neutral-400 italic">All specs set to N/A (only Name &amp; Price will show)</span>`;
+        } else {
+          previewContainer.innerHTML = active.map(a =>
+            `<span class="px-2 py-0.5 rounded-full bg-white border border-neutral-300 text-[10px] font-medium text-neutral-800">${escapeHtml(a)}</span>`
+          ).join('');
+        }
+      }
+
+      function renderMaterialFormSuppliers(pricesMap, highlightSupplierId) {
+        const listEl = document.getElementById('materialSupplierPricesList');
+        listEl.innerHTML = state.suppliers.map(sup => {
+          const val = (pricesMap && pricesMap[sup.id] !== undefined) ? pricesMap[sup.id] : '';
+          const isHighlighted = highlightSupplierId === sup.id;
+          return `
+            <div class="flex items-center justify-between gap-2 p-2.5 rounded-2xl ${isHighlighted ? 'bg-neutral-900 text-white' : 'bg-neutral-100 text-neutral-900'}">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="text-xs font-semibold truncate">${escapeHtml(sup.name)}</span>
+                ${isHighlighted ? `<span class="px-2 py-0.5 rounded-full bg-white text-neutral-900 text-[10px] font-bold">Target Supplier</span>` : ''}
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <span class="text-xs font-semibold ${isHighlighted ? 'text-neutral-300' : 'text-neutral-500'}">₱</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  value="${val !== '' ? Number(val).toFixed(2) : ''}"
+                  data-form-sup-id="${escapeHtml(sup.id)}"
+                  aria-label="Price for ${escapeHtml(sup.name)}"
+                  class="form-sup-price-input w-28 px-3 py-1.5 rounded-xl bg-white border border-neutral-300 text-right text-xs font-bold text-neutral-900 focus:outline-none"
+                />
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function openMaterialFormModal(editId, copiedTemplateMaterial) {
+        const modal = document.getElementById('modalMaterialForm');
+        const titleEl = document.getElementById('materialFormTitle');
+        const subtitleEl = document.getElementById('materialFormSubtitle');
+        const editIdInput = document.getElementById('editMaterialId');
+        const nameInput = document.getElementById('inputMaterialName');
+        const deleteBtn = document.getElementById('btnDeleteMaterial');
+        const errBox = document.getElementById('materialFormError');
+        errBox.classList.add('hidden');
+
+        document.querySelectorAll('[id^="customBox_"]').forEach(el => el.classList.add('hidden'));
+
+        if (editId) {
+          const existing = state.materials.find(m => m.id === editId);
+          if (!existing) return;
+          titleEl.textContent = 'Edit Hardware Material';
+          subtitleEl.textContent = 'Update material details, N/A visibility, or supplier prices';
+          editIdInput.value = existing.id;
+          nameInput.value = existing.name;
+          populateDropdownSelects({
+            category: existing.category,
+            brand: existing.brand,
+            size: existing.size,
+            weight: existing.weight,
+            bags: existing.bags
+          });
+          renderMaterialFormSuppliers(existing.prices, null);
+          deleteBtn.classList.remove('hidden');
+        } else if (copiedTemplateMaterial) {
+          titleEl.textContent = 'Edit Copied Material & Save';
+          subtitleEl.textContent = 'Copied from existing supplier — edit details or prices below and save';
+          editIdInput.value = '';
+          nameInput.value = copiedTemplateMaterial.name;
+          populateDropdownSelects({
+            category: copiedTemplateMaterial.category,
+            brand: copiedTemplateMaterial.brand,
+            size: copiedTemplateMaterial.size,
+            weight: copiedTemplateMaterial.weight,
+            bags: copiedTemplateMaterial.bags
+          });
+          renderMaterialFormSuppliers(copiedTemplateMaterial.prices, preselectedSupplierForNewMaterial);
+          deleteBtn.classList.add('hidden');
+        } else {
+          titleEl.textContent = 'Add New Hardware Material';
+          subtitleEl.textContent = 'Select N/A on any specification to make it not viewable';
+          editIdInput.value = '';
+          nameInput.value = '';
+          populateDropdownSelects({
+            category: state.options.category[0],
+            brand: 'N/A',
+            size: 'N/A',
+            weight: 'N/A',
+            bags: 'N/A'
+          });
+          renderMaterialFormSuppliers({}, preselectedSupplierForNewMaterial);
+          deleteBtn.classList.add('hidden');
+        }
+
+        modal.classList.remove('hidden');
+      }
+
+      function openAddSupplierModal() {
+        const modal = document.getElementById('modalAddSupplier');
+        const nameInput = document.getElementById('inputNewSupplierName');
+        const listEl = document.getElementById('newSupplierCopiedMaterialsList');
+        const headerLabel = document.getElementById('copiedSupplierHeaderLabel');
+        const noticeEl = document.getElementById('addSupplierCopyNotice');
+        const errBox = document.getElementById('addSupplierError');
+
+        errBox.classList.add('hidden');
+        nameInput.value = '';
+
+        const firstSupplier = state.suppliers[0];
+        if (firstSupplier) {
+          headerLabel.textContent = `Copied Materials from ${firstSupplier.name} (1st Supplier)`;
+          noticeEl.textContent = `Automatically copied recent material data from ${firstSupplier.name}. Just edit the prices (₱) for your new supplier below!`;
+        } else {
+          headerLabel.textContent = 'Materials List';
+          noticeEl.textContent = 'Enter prices (₱) for your new supplier below.';
+        }
+
+        listEl.innerHTML = state.materials.map(mat => {
+          const refPrice = (firstSupplier && mat.prices && mat.prices[firstSupplier.id] !== undefined)
+            ? Number(mat.prices[firstSupplier.id])
+            : (getMaterialPricingInfo(mat).lowest?.price ?? 0);
+          const specs = getVisibleSpecs(mat).map(s => `${s.label}: ${s.value}`).join(' • ');
+
+          return `
+            <div class="p-3 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center justify-between gap-2">
+              <label class="flex items-start gap-2.5 min-w-0 flex-1 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked
+                  data-copy-mat-check="${escapeHtml(mat.id)}"
+                  class="mt-1 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900"
+                />
+                <div class="min-w-0">
+                  <div class="text-xs font-bold text-neutral-900 truncate">${escapeHtml(mat.name)}</div>
+                  ${specs ? `<div class="text-[10px] text-neutral-500 truncate">${escapeHtml(specs)}</div>` : ''}
+                  <div class="text-[10px] text-neutral-400">
+                    ${firstSupplier ? `${escapeHtml(firstSupplier.name)} price: ${formatPeso(refPrice)}` : ''}
+                  </div>
+                </div>
+              </label>
+
+              <div class="flex items-center gap-1 shrink-0">
+                <span class="text-xs font-semibold text-neutral-500">₱</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value="${refPrice > 0 ? refPrice.toFixed(2) : ''}"
+                  data-copy-mat-price="${escapeHtml(mat.id)}"
+                  aria-label="New supplier price for ${escapeHtml(mat.name)}"
+                  class="w-24 px-2.5 py-1.5 rounded-xl bg-white border border-neutral-300 text-right text-xs font-bold text-neutral-900 focus:outline-none focus:border-neutral-900"
+                />
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        modal.classList.remove('hidden');
+      }
+
+      function exportToCsv() {
+        const supHeaders = state.suppliers.map(s => s.name);
+        const headers = ['Material Name', 'Kind/Category', 'Brand', 'Size', 'Weight', 'Bags', 'Lowest Price (PHP)', 'Lowest Supplier', ...supHeaders];
+
+        const escapeCsvCell = (val) => {
+          const str = String(val ?? '');
+          if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+            return '"' + str.replace(/"/g, '""') + '"';
+          }
+          return str;
+        };
+
+        const rows = state.materials.map(mat => {
+          const pricing = getMaterialPricingInfo(mat);
+          const supPrices = state.suppliers.map(s => (mat.prices && mat.prices[s.id] !== undefined) ? Number(mat.prices[s.id]).toFixed(2) : '');
+          return [
+            mat.name,
+            mat.category,
+            mat.brand || 'N/A',
+            mat.size || 'N/A',
+            mat.weight || 'N/A',
+            mat.bags || 'N/A',
+            pricing.lowest ? pricing.lowest.price.toFixed(2) : '',
+            pricing.lowest ? pricing.lowest.supplierName : '',
+            ...supPrices
+          ].map(escapeCsvCell).join(',');
+        });
+
+        const csvContent = '\uFEFF' + [headers.map(escapeCsvCell).join(','), ...rows].join('\r\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Hardware_Material_Prices.csv';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast('Exported CSV for Excel');
+      }
+
+      function parseCsvLine(line) {
+        const result = [];
+        let cur = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (inQuotes) {
+            if (ch === '"' && line[i + 1] === '"') {
+              cur += '"';
+              i++;
+            } else if (ch === '"') {
+              inQuotes = false;
+            } else {
+              cur += ch;
+            }
+          } else {
+            if (ch === '"') {
+              inQuotes = true;
+            } else if (ch === ',') {
+              result.push(cur.trim());
+              cur = '';
+            } else {
+              cur += ch;
+            }
+          }
+        }
+        result.push(cur.trim());
+        return result;
+      }
+
+      function importFromCsvText(csvText) {
+        const lines = csvText.replace(/^\uFEFF/, '').split(/\r?\n/).filter(l => l.trim() !== '');
+        if (lines.length < 2) {
+          showToast('CSV file has no data rows');
+          return;
+        }
+        const headers = parseCsvLine(lines[0]);
+        const fixedCols = ['material name', 'kind/category', 'category', 'brand', 'size', 'weight', 'bags', 'lowest price (php)', 'lowest supplier'];
+        const supplierColMap = {};
+
+        headers.forEach((h, idx) => {
+          const lower = h.toLowerCase().trim();
+          if (!fixedCols.includes(lower) && h.trim() !== '') {
+            let sup = state.suppliers.find(s => s.name.toLowerCase() === lower);
+            if (!sup) {
+              sup = { id: 'sup_' + Date.now() + '_' + idx, name: h.trim() };
+              state.suppliers.push(sup);
+            }
+            supplierColMap[idx] = sup.id;
+          }
+        });
+
+        let importedCount = 0;
+        for (let r = 1; r < lines.length; r++) {
+          const cols = parseCsvLine(lines[r]);
+          const name = cols[0];
+          if (!name) continue;
+          const category = cols[1] || 'General Hardware';
+          const brand = cols[2] || 'N/A';
+          const size = cols[3] || 'N/A';
+          const weight = cols[4] || 'N/A';
+          const bags = cols[5] || 'N/A';
+
+          const prices = {};
+          Object.keys(supplierColMap).forEach(colIdx => {
+            const val = parseFloat(cols[colIdx]);
+            if (!isNaN(val) && val > 0) {
+              prices[supplierColMap[colIdx]] = Number(val.toFixed(2));
+            }
+          });
+
+          if (!state.options.category.includes(category)) state.options.category.push(category);
+          if (!state.options.brand.includes(brand)) state.options.brand.push(brand);
+          if (!state.options.size.includes(size)) state.options.size.push(size);
+          if (!state.options.weight.includes(weight)) state.options.weight.push(weight);
+          if (!state.options.bags.includes(bags)) state.options.bags.push(bags);
+
+          state.materials.push({
+            id: 'mat_' + Date.now() + '_' + r,
+            name,
+            category,
+            brand,
+            size,
+            weight,
+            bags,
+            prices,
+            selectedSupplierId: null
+          });
+          importedCount++;
+        }
+
+        saveState();
+        renderAll();
+        showToast(`Imported ${importedCount} material${importedCount === 1 ? '' : 's'} from CSV`);
+      }
+
+      function switchTab(tab) {
+        activeTab = tab;
+        const views = {
+          materials: document.getElementById('viewMaterials'),
+          estimate: document.getElementById('viewEstimate'),
+          suppliers: document.getElementById('viewSuppliers')
+        };
+        const buttons = {
+          materials: document.getElementById('navTabMaterials'),
+          estimate: document.getElementById('navTabEstimate'),
+          suppliers: document.getElementById('navTabSuppliers')
+        };
+
+        Object.keys(views).forEach(k => {
+          if (k === tab) {
+            views[k].classList.remove('hidden');
+            buttons[k].className = 'nav-pill-btn py-2 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 bg-neutral-900 text-white transition relative';
+          } else {
+            views[k].classList.add('hidden');
+            buttons[k].className = 'nav-pill-btn py-2 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 text-neutral-600 hover:text-neutral-900 transition relative';
+          }
+        });
+
+        renderAll();
+      }
+
+      function renderAll() {
+        renderFilters();
+        renderMaterialsList();
+        renderCostEstimate();
+        renderSuppliersTab();
+      }
+
+      function initEvents() {
+        document.getElementById('navTabMaterials').addEventListener('click', () => switchTab('materials'));
+        document.getElementById('navTabEstimate').addEventListener('click', () => switchTab('estimate'));
+        document.getElementById('navTabSuppliers').addEventListener('click', () => switchTab('suppliers'));
+        document.getElementById('btnFloatingViewEstimate').addEventListener('click', () => switchTab('estimate'));
+        document.getElementById('btnBrowseToAddEstimate').addEventListener('click', () => switchTab('materials'));
+
+        document.getElementById('btnToggleViewport').addEventListener('click', () => {
+          isMobileFrame = !isMobileFrame;
+          const shell = document.getElementById('appShell');
+          const label = document.getElementById('viewportLabel');
+          if (isMobileFrame) {
+            shell.className = 'app-shell-mobile flex flex-col justify-between relative bg-white';
+            label.textContent = 'Phone Frame';
+          } else {
+            shell.className = 'app-shell-full flex flex-col justify-between relative bg-white';
+            label.textContent = 'Expanded View';
+          }
+        });
+
+        document.getElementById('btnResetDemoData').addEventListener('click', () => {
+          state = getDefaultState();
+          saveState();
+          activeCategoryFilter = 'ALL';
+          activeBrandFilter = 'ALL';
+          searchQuery = '';
+          document.getElementById('searchInput').value = '';
+          renderAll();
+          showToast('Sample hardware inventory & prices restored');
+        });
+
+        const searchInput = document.getElementById('searchInput');
+        const btnClearSearch = document.getElementById('btnClearSearch');
+        searchInput.addEventListener('input', () => {
+          searchQuery = searchInput.value;
+          if (searchQuery.length > 0) {
+            btnClearSearch.classList.remove('hidden');
+            btnClearSearch.classList.add('flex');
+          } else {
+            btnClearSearch.classList.add('hidden');
+            btnClearSearch.classList.remove('flex');
+          }
+          renderMaterialsList();
+        });
+
+        btnClearSearch.addEventListener('click', () => {
+          searchQuery = '';
+          searchInput.value = '';
+          btnClearSearch.classList.add('hidden');
+          btnClearSearch.classList.remove('flex');
+          renderMaterialsList();
+        });
+
+        document.getElementById('filterBrandSelect').addEventListener('change', (e) => {
+          activeBrandFilter = e.target.value;
+          renderMaterialsList();
+        });
+
+        document.getElementById('sortBySelect').addEventListener('change', (e) => {
+          activeSort = e.target.value;
+          renderMaterialsList();
+        });
+
+        document.getElementById('btnQuickAddMaterial').addEventListener('click', () => {
+          openCopyPromptModal(null);
+        });
+
+        document.getElementById('copySourceSupplierSelect').addEventListener('change', populateCopySourceMaterials);
+        document.getElementById('btnCloseCopyPrompt').addEventListener('click', () => {
+          document.getElementById('modalCopyPrompt').classList.add('hidden');
+        });
+        document.getElementById('btnStartBlankMaterial').addEventListener('click', () => {
+          document.getElementById('modalCopyPrompt').classList.add('hidden');
+          openMaterialFormModal(null, null);
+        });
+        document.getElementById('btnConfirmCopyMaterial').addEventListener('click', () => {
+          const matId = document.getElementById('copySourceMaterialSelect').value;
+          const sourceMat = state.materials.find(m => m.id === matId);
+          document.getElementById('modalCopyPrompt').classList.add('hidden');
+          if (sourceMat) {
+            const cloned = JSON.parse(JSON.stringify(sourceMat));
+            openMaterialFormModal(null, cloned);
+            showToast('Copied material details — edit & save below');
+          } else {
+            openMaterialFormModal(null, null);
+          }
+        });
+
+        document.getElementById('btnTriggerCopyInsideForm').addEventListener('click', () => {
+          document.getElementById('modalMaterialForm').classList.add('hidden');
+          openCopyPromptModal(preselectedSupplierForNewMaterial);
+        });
+
+        const closeMatForm = () => document.getElementById('modalMaterialForm').classList.add('hidden');
+        document.getElementById('btnCloseMaterialForm').addEventListener('click', closeMatForm);
+        document.getElementById('btnCancelMaterialForm').addEventListener('click', closeMatForm);
+
+        ['selectBrand', 'selectSize', 'selectWeight', 'selectBags'].forEach(id => {
+          document.getElementById(id).addEventListener('change', updateSpecPreviewPills);
+        });
+
+        document.querySelectorAll('.btn-toggle-custom').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const field = btn.getAttribute('data-custom-target');
+            const box = document.getElementById('customBox_' + field);
+            const inp = document.getElementById('customInput_' + field);
+            if (box) {
+              box.classList.toggle('hidden');
+              if (!box.classList.contains('hidden') && inp) inp.focus();
+            }
+          });
+        });
+
+        document.querySelectorAll('.btn-save-custom').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const field = btn.getAttribute('data-custom-save');
+            const inp = document.getElementById('customInput_' + field);
+            const box = document.getElementById('customBox_' + field);
+            const selectId = 'select' + field.charAt(0).toUpperCase() + field.slice(1);
+            const sel = document.getElementById(selectId);
+            const val = (inp.value || '').trim();
+            if (!val) return;
+            if (!state.options[field].includes(val)) {
+              state.options[field].push(val);
+            }
+            const opt = document.createElement('option');
+            opt.value = val;
+            opt.textContent = val;
+            sel.appendChild(opt);
+            sel.value = val;
+            inp.value = '';
+            box.classList.add('hidden');
+            updateSpecPreviewPills();
+            saveState();
+            showToast(`Added custom ${field}: ${val}`);
+          });
+        });
+
+        document.getElementById('btnAddInlineSupplierRow').addEventListener('click', () => {
+          const box = document.getElementById('inlineNewSupplierBox');
+          box.classList.toggle('hidden');
+        });
+
+        document.getElementById('btnSaveInlineSupplier').addEventListener('click', () => {
+          const inp = document.getElementById('inlineNewSupplierName');
+          const name = (inp.value || '').trim();
+          if (!name) return;
+          const currentPrices = {};
+          document.querySelectorAll('.form-sup-price-input').forEach(el => {
+            const sid = el.getAttribute('data-form-sup-id');
+            if (el.value !== '') currentPrices[sid] = parseFloat(el.value);
+          });
+          const newSup = { id: 'sup_' + Date.now(), name };
+          state.suppliers.push(newSup);
+          inp.value = '';
+          document.getElementById('inlineNewSupplierBox').classList.add('hidden');
+          renderMaterialFormSuppliers(currentPrices, newSup.id);
+          saveState();
+          showToast(`Added supplier: ${name}`);
+        });
+
+        document.getElementById('materialForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const name = document.getElementById('inputMaterialName').value.trim();
+          const category = document.getElementById('selectCategory').value;
+          const brand = document.getElementById('selectBrand').value;
+          const size = document.getElementById('selectSize').value;
+          const weight = document.getElementById('selectWeight').value;
+          const bags = document.getElementById('selectBags').value;
+          const editId = document.getElementById('editMaterialId').value;
+          const errBox = document.getElementById('materialFormError');
+
+          const prices = {};
+          let validPriceCount = 0;
+          document.querySelectorAll('.form-sup-price-input').forEach(inp => {
+            const supId = inp.getAttribute('data-form-sup-id');
+            const val = parseFloat(inp.value);
+            if (!isNaN(val) && val > 0) {
+              prices[supId] = Number(val.toFixed(2));
+              validPriceCount++;
+            }
+          });
+
+          if (!name) {
+            errBox.textContent = 'Please enter a Material Name.';
+            errBox.classList.remove('hidden');
+            return;
+          }
+          if (validPriceCount === 0) {
+            errBox.textContent = 'Please input a valid price (₱) for at least one supplier.';
+            errBox.classList.remove('hidden');
+            return;
+          }
+
+          if (editId) {
+            const existing = state.materials.find(m => m.id === editId);
+            if (existing) {
+              existing.name = name;
+              existing.category = category;
+              existing.brand = brand;
+              existing.size = size;
+              existing.weight = weight;
+              existing.bags = bags;
+              existing.prices = prices;
+            }
+            showToast('Updated material & supplier prices');
+          } else {
+            state.materials.unshift({
+              id: 'mat_' + Date.now(),
+              name,
+              category,
+              brand,
+              size,
+              weight,
+              bags,
+              prices,
+              selectedSupplierId: null
+            });
+            showToast('Saved new material — lowest price selected');
+          }
+
+          saveState();
+          closeMatForm();
+          renderAll();
+        });
+
+        document.getElementById('btnDeleteMaterial').addEventListener('click', () => {
+          const editId = document.getElementById('editMaterialId').value;
+          if (!editId) return;
+          state.materials = state.materials.filter(m => m.id !== editId);
+          delete state.estimateQty[editId];
+          saveState();
+          closeMatForm();
+          renderAll();
+          showToast('Material removed');
+        });
+
+        document.getElementById('btnQuickAddSupplier').addEventListener('click', openAddSupplierModal);
+        document.getElementById('btnAddSupplierFromTab').addEventListener('click', openAddSupplierModal);
+        const closeAddSupplier = () => document.getElementById('modalAddSupplier').classList.add('hidden');
+        document.getElementById('btnCloseAddSupplier').addEventListener('click', closeAddSupplier);
+        document.getElementById('btnCancelAddSupplier').addEventListener('click', closeAddSupplier);
+
+        document.getElementById('addSupplierForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const nameInput = document.getElementById('inputNewSupplierName');
+          const errBox = document.getElementById('addSupplierError');
+          const name = nameInput.value.trim();
+
+          if (!name) {
+            errBox.textContent = 'Please enter a Supplier Name.';
+            errBox.classList.remove('hidden');
+            return;
+          }
+
+          const newSupId = 'sup_' + Date.now();
+          state.suppliers.push({ id: newSupId, name });
+
+          let copiedCount = 0;
+          document.querySelectorAll('[data-copy-mat-check]').forEach(chk => {
+            if (!chk.checked) return;
+            const matId = chk.getAttribute('data-copy-mat-check');
+            const priceInp = document.querySelector(`[data-copy-mat-price="${matId}"]`);
+            const val = priceInp ? parseFloat(priceInp.value) : NaN;
+            const mat = state.materials.find(m => m.id === matId);
+            if (mat && !isNaN(val) && val > 0) {
+              if (!mat.prices) mat.prices = {};
+              mat.prices[newSupId] = Number(val.toFixed(2));
+              copiedCount++;
+            }
+          });
+
+          saveState();
+          closeAddSupplier();
+          renderAll();
+          showToast(`Added ${name} with ${copiedCount} copied & priced materials`);
+        });
+
+        const clearEstimate = () => {
+          state.estimateQty = {};
+          saveState();
+          renderAll();
+          showToast('Cleared cost estimate');
+        };
+        document.getElementById('btnClearEstimate').addEventListener('click', clearEstimate);
+        document.getElementById('btnFloatingClear').addEventListener('click', clearEstimate);
+
+        document.getElementById('btnCopyEstimate').addEventListener('click', () => {
+          const lines = ['HARDWARE COST ESTIMATE (₱)'];
+          let grand = 0;
+          state.materials.forEach(mat => {
+            const qty = Number(state.estimateQty[mat.id] || 0);
+            if (qty > 0) {
+              const pricing = getMaterialPricingInfo(mat);
+              const unit = pricing.active ? pricing.active.price : 0;
+              const supName = pricing.active ? pricing.active.supplierName : 'N/A';
+              const sub = unit * qty;
+              grand += sub;
+              const specs = getVisibleSpecs(mat).map(s => s.value).join(', ');
+              lines.push(`• ${mat.name}${specs ? ` (${specs})` : ''} — ${qty} × ${formatPeso(unit)} [${supName}] = ${formatPeso(sub)}`);
+            }
+          });
+          lines.push(`TOTAL ESTIMATE: ${formatPeso(grand)}`);
+          const text = lines.join('\n');
+
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => showToast('Cost estimate copied to clipboard')).catch(() => fallbackCopy(text));
+          } else {
+            fallbackCopy(text);
+          }
+        });
+
+        function fallbackCopy(text) {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          try {
+            document.execCommand('copy');
+            showToast('Cost estimate copied to clipboard');
+          } catch (err) {
+            showToast('Unable to copy');
+          }
+          ta.remove();
+        }
+
+        document.getElementById('btnOpenCsvModal').addEventListener('click', () => {
+          document.getElementById('modalCsv').classList.remove('hidden');
+        });
+        const closeCsv = () => document.getElementById('modalCsv').classList.add('hidden');
+        document.getElementById('btnCloseCsvModal').addEventListener('click', closeCsv);
+        document.getElementById('btnDoneCsvModal').addEventListener('click', closeCsv);
+        document.getElementById('btnDownloadCsv').addEventListener('click', exportToCsv);
+
+        document.getElementById('inputCsvFile').addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            importFromCsvText(String(ev.target.result || ''));
+            e.target.value = '';
+            closeCsv();
+          };
+          reader.readAsText(file);
+        });
+
+        document.getElementById('btnOpenSyncModal').addEventListener('click', () => {
+          document.getElementById('modalSync').classList.remove('hidden');
+        });
+        document.getElementById('btnCloseSyncModal').addEventListener('click', () => {
+          document.getElementById('modalSync').classList.add('hidden');
+        });
+
+        document.getElementById('btnToggleOfflineSim').addEventListener('click', () => {
+          state.isOfflineSimulated = !state.isOfflineSimulated;
+          const btn = document.getElementById('btnToggleOfflineSim');
+          const mini = document.getElementById('syncStatusMini');
+          if (state.isOfflineSimulated) {
+            btn.textContent = 'Offline Mode (Local Only)';
+            mini.textContent = 'Offline Mode • Saved Locally';
+            showToast('Working offline — all changes saved to device');
+          } else {
+            btn.textContent = 'Online (Cloud Connected)';
+            mini.textContent = 'Offline-Ready • Synced';
+            showToast('Cloud connection active');
+          }
+          saveState();
+        });
+
+        document.getElementById('btnSyncNow').addEventListener('click', () => {
+          if (state.isOfflineSimulated) {
+            showToast('Device is in Offline Mode — changes queued locally');
+            return;
+          }
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          state.lastSynced = `Synced at ${timeStr}`;
+          document.getElementById('lastSyncedTimestamp').textContent = state.lastSynced;
+          document.getElementById('syncStatusMini').textContent = `Synced ${timeStr}`;
+          saveState();
+          showToast('Cloud sync complete across all devices');
+        });
+
+        // PWA Install Modal & Service Worker / Manifest Setup
+        let deferredPwaPrompt = null;
+
+        function generatePwaIconDataUrl(size) {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#111827';
+            ctx.beginPath();
+            const r = size * 0.22;
+            ctx.moveTo(r, 0);
+            ctx.lineTo(size - r, 0);
+            ctx.quadraticCurveTo(size, 0, size, r);
+            ctx.lineTo(size, size - r);
+            ctx.quadraticCurveTo(size, size, size - r, size);
+            ctx.lineTo(r, size);
+            ctx.quadraticCurveTo(0, size, 0, size - r);
+            ctx.lineTo(0, r);
+            ctx.quadraticCurveTo(0, 0, r, 0);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = Math.max(4, size * 0.06);
+            ctx.lineJoin = 'round';
+            const cx = size / 2;
+            const cy = size / 2;
+            const rad = size * 0.32;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - rad);
+            ctx.quadraticCurveTo(cx + rad * 0.12, cy - rad * 0.12, cx + rad, cy);
+            ctx.quadraticCurveTo(cx + rad * 0.12, cy + rad * 0.12, cx, cy + rad);
+            ctx.quadraticCurveTo(cx - rad * 0.12, cy + rad * 0.12, cx - rad, cy);
+            ctx.quadraticCurveTo(cx - rad * 0.12, cy - rad * 0.12, cx, cy - rad);
+            ctx.closePath();
+            ctx.stroke();
+            return canvas.toDataURL('image/png');
+          } catch (err) {
+            return '';
+          }
+        }
+
+        function setupPwaEnvironment() {
+          try {
+            const icon192 = generatePwaIconDataUrl(192);
+            const icon512 = generatePwaIconDataUrl(512);
+            if (icon192) {
+              const appleLink = document.getElementById('pwaAppleIconLink');
+              if (appleLink) appleLink.href = icon192;
+            }
+            const manifestObj = {
+              name: 'MatPrice — Hardware Price Checker & Estimator',
+              short_name: 'MatPrice',
+              description: 'Offline-first Hardware Material Price Checker & Cost Estimator in Philippine Peso (₱)',
+              start_url: './',
+              scope: './',
+              display: 'standalone',
+              orientation: 'portrait',
+              background_color: '#FFFFFF',
+              theme_color: '#FFFFFF',
+              icons: [
+                { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+                { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+              ]
+            };
+            const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+            const manifestUrl = URL.createObjectURL(manifestBlob);
+            const manifestLink = document.getElementById('pwaManifestLink');
+            if (manifestLink) manifestLink.href = manifestUrl;
+          } catch (e) {}
+
+          if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+            try {
+              const swCode = `
+                const CACHE_NAME = 'matprice-pwa-v1';
+                self.addEventListener('install', (e) => {
+                  self.skipWaiting();
+                });
+                self.addEventListener('activate', (e) => {
+                  e.waitUntil(self.clients.claim());
+                });
+                self.addEventListener('fetch', (e) => {
+                  e.respondWith(
+                    caches.match(e.request).then((cached) => cached || fetch(e.request))
+                  );
+                });
+              `;
+              const swBlob = new Blob([swCode], { type: 'application/javascript' });
+              const swUrl = URL.createObjectURL(swBlob);
+              navigator.serviceWorker.register(swUrl).catch(() => {});
+            } catch (e) {}
+          }
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPwaPrompt = e;
+          const statusPill = document.getElementById('pwaStatusPill');
+          const btnText = document.getElementById('nativeInstallBtnText');
+          if (statusPill) statusPill.textContent = 'Ready to Install';
+          if (btnText) btnText.textContent = 'Install App to Android Home Screen Now';
+        });
+
+        const openPwaModal = () => {
+          document.getElementById('modalPwaInstall').classList.remove('hidden');
+        };
+        const closePwaModal = () => {
+          document.getElementById('modalPwaInstall').classList.add('hidden');
+        };
+
+        document.getElementById('btnOpenPwaModal').addEventListener('click', openPwaModal);
+        document.getElementById('btnOpenPwaModalTop').addEventListener('click', openPwaModal);
+        document.getElementById('btnClosePwaModal').addEventListener('click', closePwaModal);
+        document.getElementById('btnDonePwaModal').addEventListener('click', closePwaModal);
+
+        document.getElementById('btnTriggerNativePwaInstall').addEventListener('click', async () => {
+          if (deferredPwaPrompt) {
+            deferredPwaPrompt.prompt();
+            try {
+              await deferredPwaPrompt.userChoice;
+            } catch (err) {}
+            deferredPwaPrompt = null;
+            closePwaModal();
+          } else {
+            showToast('In Android Chrome: tap ⋮ Menu → Add to Home screen');
+          }
+        });
+
+        document.getElementById('btnDownloadStandalonePwa').addEventListener('click', () => {
+          const fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+          const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'MatPrice_PWA.html';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+          showToast('Downloaded MatPrice_PWA.html for your Android phone');
+        });
+
+        setupPwaEnvironment();
+      }
+
+      initEvents();
+      renderAll();
+    })();
+  </script>
+</body>
+</html>
